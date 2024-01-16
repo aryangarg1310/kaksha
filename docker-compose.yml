@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  web:
+    image: fastapi
+    deploy:
+      replicas: 3  # Adjust the number of replicas as needed
+      placement:
+        constraints:
+          - node.role == worker
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager  # The database service runs only on manager nodes
