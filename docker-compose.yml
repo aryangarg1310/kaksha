@@ -2,14 +2,16 @@ version: '3.8'
 
 services:
   web:
-    image: fastapi
+    image: aryan1310/aryanfastapi
     deploy:
       replicas: 3  # Adjust the number of replicas as needed
       placement:
         constraints:
           - node.role == worker
+    networks:
+      - services_default  # Use the same network as your PostgreSQL service
     ports:
-      - "8000:8000"
+      - "8002:8000"
     depends_on:
       - db
 
@@ -19,7 +21,26 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
+    networks:
+      - services_default
     deploy:
       placement:
         constraints:
           - node.role == manager  # The database service runs only on manager nodes
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: anihortes
+    deploy:
+      replicas: 1
+    ports:
+      - "8080:80"
+    networks:
+      - services_default  # Network in pgadmin is working. This can be different from the network of the database.
+
+networks:
+  services_default:
+    # external: true  # If postgresdb is in another netwpork
+
